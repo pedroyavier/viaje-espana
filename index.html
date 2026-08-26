@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3yn7xB+o1MZ0Lt9onptY8c7GHG4hM=" crossorigin="">
 <style>
 :root{
   --bg:#190B0E;
@@ -125,13 +124,63 @@ h1{font-size:clamp(3rem,8vw,6.7rem);line-height:.92;max-width:920px;margin-top:1
 .hotel-meta span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
 .hotel-note{margin-top:9px;color:rgba(255,255,255,.64);font-size:.86rem}
 .map-shell{border-radius:32px;padding:14px;overflow:hidden}
-#map{height:560px;border-radius:24px;overflow:hidden;background:#efe4cf;border:1px solid rgba(94,16,27,.10)}
+.real-map{position:relative;border-radius:24px;overflow:hidden;background:#efe4cf;border:1px solid rgba(94,16,27,.10);aspect-ratio:960/661}
+.real-map>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#f7ead0}
+.route-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.route-overlay .route-line{fill:none;stroke:#C01F2F;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 4px 5px rgba(94,16,27,.22))}
+.route-overlay .return-line{stroke-dasharray:13 10;opacity:.9}
+.route-overlay .stop-dot{fill:#FFF8E8;stroke:#C01F2F;stroke-width:4}
+.route-overlay .stop-ring{fill:none;stroke:#FFF8E8;stroke-width:3;opacity:.9}
+.route-overlay text{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;fill:#5E101B;paint-order:stroke;stroke:#FFF8E8;stroke-width:5px;stroke-linejoin:round}
 .map-note{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 10px 6px;color:var(--muted);font-size:.9rem}
 .route-chips{display:flex;gap:8px;flex-wrap:wrap}
 .route-chips span{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-size:.78rem;color:rgba(255,255,255,.76)}
-.leaflet-container{font-family:'DM Sans',sans-serif}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#5E101B;color:#fff}
-.route-marker{width:16px;height:16px;border-radius:50%;background:#FFF8E8;border:4px solid #C01F2F;box-shadow:0 0 0 5px rgba(192,31,47,.16)}
+
+
+/* ---------- EXPLORER CARDS + DETAIL DIALOG ---------- */
+.explore-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.explore-card{position:relative;grid-column:span 4;min-height:310px;border:0;padding:0;overflow:hidden;border-radius:28px;text-align:left;color:#fff;cursor:pointer;background:#321116;box-shadow:var(--shadow);font:inherit}
+.explore-card.wide{grid-column:span 6}
+.explore-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .55s ease;filter:saturate(.95) contrast(1.03)}
+.explore-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,7,10,.02) 16%,rgba(28,7,10,.22) 46%,rgba(24,6,9,.94) 100%)}
+.explore-card:hover img,.explore-card:focus-visible img{transform:scale(1.035)}
+.explore-card:focus-visible{outline:3px solid #F3C552;outline-offset:3px}
+.explore-card-copy{position:absolute;z-index:2;inset:auto 0 0;padding:22px}
+.explore-card-copy h3{font-size:1.55rem;color:#fff}
+.explore-card-copy p{margin:6px 0 0;color:rgba(255,255,255,.68);font-size:.88rem}
+.explore-more{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:.78rem;font-weight:800;color:#FFE5A1}
+.hotel-card{cursor:pointer}
+.hotel-card:focus-visible{outline:3px solid #F3C552;outline-offset:3px}
+.hotel-card::before{content:"Ver hotel +";position:absolute;top:16px;right:16px;z-index:3;padding:7px 10px;border-radius:999px;background:rgba(31,7,10,.48);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);font-size:.72rem;font-weight:800;color:#fff}
+.detail-dialog{width:min(1040px,calc(100% - 28px));max-height:min(88vh,900px);padding:0;border:1px solid rgba(255,255,255,.18);border-radius:32px;background:#210D11;color:#fff;box-shadow:0 40px 120px rgba(0,0,0,.55);overflow:hidden}
+.detail-dialog::backdrop{background:rgba(18,4,7,.72);backdrop-filter:blur(10px)}
+.detail-scroll{max-height:min(88vh,900px);overflow:auto;overscroll-behavior:contain}
+.detail-hero{position:relative;min-height:360px;background:#3b1219;overflow:hidden}
+.detail-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.detail-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(27,5,8,.08),rgba(27,5,8,.30) 45%,#210D11 100%)}
+.detail-close{position:absolute;z-index:5;top:16px;right:16px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(31,7,10,.48);backdrop-filter:blur(14px);color:#fff;font-size:1.45rem;cursor:pointer}
+.detail-heading{position:absolute;z-index:3;left:clamp(20px,5vw,48px);right:80px;bottom:26px}
+.detail-eyebrow{display:inline-flex;padding:7px 11px;border-radius:999px;background:rgba(255,248,232,.12);border:1px solid rgba(255,255,255,.18);font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#FFE5A1}
+.detail-heading h2{font-size:clamp(2.15rem,6vw,4.4rem);line-height:.95;margin-top:12px;color:#fff}
+.detail-heading p{max-width:720px;margin:11px 0 0;color:rgba(255,255,255,.72)}
+.detail-body{padding:0 clamp(20px,5vw,48px) 44px}
+.detail-gallery{display:grid;grid-template-columns:1.6fr .8fr .8fr;gap:10px;margin:6px 0 26px}
+.detail-gallery button{height:190px;border:0;padding:0;border-radius:20px;overflow:hidden;cursor:pointer;background:#3a171c}
+.detail-gallery button:first-child{height:250px;grid-row:span 2}
+.detail-gallery img{width:100%;height:100%;object-fit:cover;transition:transform .25s ease}
+.detail-gallery button:hover img{transform:scale(1.025)}
+.detail-columns{display:grid;grid-template-columns:1.1fr .9fr;gap:28px}
+.detail-section{padding-top:12px}
+.detail-section h3{font-size:1.1rem;color:#FFE5A1;margin-bottom:10px;letter-spacing:-.02em}
+.detail-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}
+.detail-list li{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.79);line-height:1.45}
+.detail-list strong{color:#fff}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.detail-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border-radius:999px;text-decoration:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);font-weight:800;font-size:.86rem}
+.detail-action.primary{background:#FFF8E8;color:#5E101B;border-color:#FFF8E8}
+.detail-note{margin-top:22px;color:rgba(255,255,255,.48);font-size:.78rem;line-height:1.5}
+@media(max-width:900px){.explore-card,.explore-card.wide{grid-column:span 6}.detail-columns{grid-template-columns:1fr}.detail-gallery{grid-template-columns:1fr 1fr}.detail-gallery button:first-child{grid-column:1/3;height:240px;grid-row:auto}.detail-gallery button{height:160px}}
+@media(max-width:620px){.explore-grid{grid-template-columns:1fr}.explore-card,.explore-card.wide{grid-column:auto;min-height:270px}.detail-dialog{width:calc(100% - 14px);border-radius:24px}.detail-hero{min-height:330px}.detail-gallery{grid-template-columns:1fr}.detail-gallery button:first-child{grid-column:auto;height:220px}.detail-gallery button{height:170px}.detail-heading{left:20px;right:68px}.detail-body{padding-left:16px;padding-right:16px}}
 
 .city-times-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
 .city-time-card{border-radius:22px;padding:18px 19px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
@@ -174,7 +223,7 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
   .navlinks{display:none}.hero-frame{min-height:620px}.intro-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:300px 230px 230px}.photo-card:first-child{grid-row:auto;grid-column:1/3}.hotels-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hotel-card,.hotel-card:nth-child(1),.hotel-card:nth-child(2),.hotel-card:nth-child(3),.hotel-card:nth-child(4),.hotel-card:nth-child(5){grid-column:span 1;min-height:300px}.hotel-card:last-child{grid-column:1/3}.day-body{grid-template-columns:1fr}.day-photo{height:230px}
 }
 @media(max-width:620px){
-  .container{width:min(100% - 20px,1180px)}nav{top:8px;margin-top:8px}.hero{padding-top:12px}.hero-frame{min-height:650px;border-radius:26px}.hero-content{padding:24px}.countdown{grid-template-columns:repeat(2,1fr)}.section{padding-top:58px}.section-head{display:block}.section-head p{margin-top:10px}.quick-grid{grid-template-columns:1fr 1fr}.photo-grid{display:grid;grid-template-columns:1fr;grid-template-rows:330px 230px 230px 230px 230px}.photo-card:first-child{grid-column:auto}.hotels-grid{grid-template-columns:1fr}.hotel-card,.hotel-card:nth-child(1),.hotel-card:nth-child(2),.hotel-card:nth-child(3),.hotel-card:nth-child(4),.hotel-card:nth-child(5),.hotel-card:last-child{grid-column:auto;min-height:280px}.day summary{grid-template-columns:auto 1fr auto}.day-date{display:none}.day-body{padding-left:16px;padding-right:16px}#map{height:440px}
+  .container{width:min(100% - 20px,1180px)}nav{top:8px;margin-top:8px}.hero{padding-top:12px}.hero-frame{min-height:650px;border-radius:26px}.hero-content{padding:24px}.countdown{grid-template-columns:repeat(2,1fr)}.section{padding-top:58px}.section-head{display:block}.section-head p{margin-top:10px}.quick-grid{grid-template-columns:1fr 1fr}.photo-grid{display:grid;grid-template-columns:1fr;grid-template-rows:330px 230px 230px 230px 230px}.photo-card:first-child{grid-column:auto}.hotels-grid{grid-template-columns:1fr}.hotel-card,.hotel-card:nth-child(1),.hotel-card:nth-child(2),.hotel-card:nth-child(3),.hotel-card:nth-child(4),.hotel-card:nth-child(5),.hotel-card:last-child{grid-column:auto;min-height:280px}.day summary{grid-template-columns:auto 1fr auto}.day-date{display:none}.day-body{padding-left:16px;padding-right:16px}.real-map{aspect-ratio:4/3}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
@@ -231,13 +280,15 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
 
 <section class="section" id="lugares">
   <div class="container">
-    <div class="section-head"><h2>Por aquí vamos a estar.</h2><p>Madrid, Andalucía, pueblos, ciudades, historia, comida y par de sitios que seguro terminan siendo favoritos.</p></div>
-    <div class="photo-grid">
-      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg" alt="La Alhambra en Granada"><div class="photo-overlay"><strong>Granada</strong><span>Alhambra · Albaicín · flamenco</span></div></article>
-      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg" alt="Plaza de España en Sevilla"><div class="photo-overlay"><strong>Sevilla</strong><span>Catedral · Alcázar · Plaza de España</span></div></article>
-      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Puente_Nuevo_Ronda.jpg/1280px-Puente_Nuevo_Ronda.jpg" alt="Puente Nuevo de Ronda"><div class="photo-overlay"><strong>Ronda</strong><span>Puente Nuevo · vistas · pueblo</span></div></article>
-      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg" alt="Vista panorámica de Málaga"><div class="photo-overlay"><strong>Málaga</strong><span>Centro histórico · costa · día libre</span></div></article>
-      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg" alt="Gran Vía de Madrid"><div class="photo-overlay"><strong>Madrid</strong><span>La primera y última parada</span></div></article>
+    <div class="section-head"><h2>Por aquí vamos a estar.</h2><p>Toca cualquier ciudad y te sale una mini guía con qué ver, qué hacer y más fotos.</p></div>
+    <div class="explore-grid">
+      <button class="explore-card wide" type="button" data-detail="city-madrid"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg" alt="Gran Vía de Madrid"><div class="explore-card-copy"><h3>Madrid</h3><p>Gran Vía · Sol · Plaza Mayor · Retiro</p><span class="explore-more">Ver mini guía →</span></div></button>
+      <button class="explore-card wide" type="button" data-detail="city-granada"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg" alt="La Alhambra en Granada"><div class="explore-card-copy"><h3>Granada</h3><p>Alhambra · Albaicín · miradores · flamenco</p><span class="explore-more">Ver mini guía →</span></div></button>
+      <button class="explore-card" type="button" data-detail="city-cordoba"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Interior%20Mezquita%20Cordoba%20Spain.jpg?width=1400" alt="Interior de la Mezquita-Catedral de Córdoba"><div class="explore-card-copy"><h3>Córdoba</h3><p>Mezquita · Judería · puente romano</p><span class="explore-more">Ver mini guía →</span></div></button>
+      <button class="explore-card" type="button" data-detail="city-sevilla"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg" alt="Plaza de España en Sevilla"><div class="explore-card-copy"><h3>Sevilla</h3><p>Alcázar · Giralda · Plaza de España · Triana</p><span class="explore-more">Ver mini guía →</span></div></button>
+      <button class="explore-card" type="button" data-detail="city-ronda"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Puente_Nuevo_Ronda.jpg/1280px-Puente_Nuevo_Ronda.jpg" alt="Puente Nuevo de Ronda"><div class="explore-card-copy"><h3>Ronda</h3><p>Puente Nuevo · Tajo · miradores</p><span class="explore-more">Ver mini guía →</span></div></button>
+      <button class="explore-card wide" type="button" data-detail="city-setenil"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Calle-cueva-del-sol.jpg?width=1400" alt="Calle Cuevas del Sol en Setenil"><div class="explore-card-copy"><h3>Setenil de las Bodegas</h3><p>Casas bajo la roca · Cuevas del Sol · Cuevas de la Sombra</p><span class="explore-more">Ver mini guía →</span></div></button>
+      <button class="explore-card wide" type="button" data-detail="city-malaga"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg" alt="Vista panorámica de Málaga"><div class="explore-card-copy"><h3>Málaga</h3><p>Alcazaba · centro · Picasso · costa</p><span class="explore-more">Ver mini guía →</span></div></button>
     </div>
   </div>
 </section>
@@ -246,23 +297,23 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
   <div class="container">
     <div class="section-head"><h2>Aquí vamos a dormir.</h2><p>Por si alguien quiere stalkear los hoteles antes de llegar 😂. Estos son los cinco que tenemos durante la ruta.</p></div>
     <div class="hotels-grid">
-      <article class="hotel-card glass">
+      <article class="hotel-card glass" role="button" tabindex="0" data-detail="hotel-puerta-alcala">
         <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/530000/523300/523266/2b31af8d.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="H10 Puerta de Alcalá en Madrid" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg';">
         <div class="hotel-info"><span class="hotel-city">Madrid</span><h3>H10 Puerta de Alcalá</h3><div class="hotel-meta"><span>19–20 oct.</span><span>1 noche</span></div><div class="hotel-note">Nuestra primera noche en España.</div></div>
       </article>
-      <article class="hotel-card glass">
+      <article class="hotel-card glass" role="button" tabindex="0" data-detail="hotel-puerta-real">
         <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/610000/601000/600909/2fd32008.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="Eurostars Puerta Real en Granada" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg';">
         <div class="hotel-info"><span class="hotel-city">Granada</span><h3>Eurostars Puerta Real</h3><div class="hotel-meta"><span>20–22 oct.</span><span>2 noches</span></div><div class="hotel-note">Aquí nos quedamos mientras recorremos Granada.</div></div>
       </article>
-      <article class="hotel-card glass">
+      <article class="hotel-card glass" role="button" tabindex="0" data-detail="hotel-nh-sevilla">
         <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/530000/523400/523322/2f2ba026.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="NH Sevilla Plaza de Armas" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg';">
         <div class="hotel-info"><span class="hotel-city">Sevilla</span><h3>NH Sevilla Plaza de Armas</h3><div class="hotel-meta"><span>22–24 oct.</span><span>2 noches</span></div></div>
       </article>
-      <article class="hotel-card glass">
+      <article class="hotel-card glass" role="button" tabindex="0" data-detail="hotel-malaga-alameda">
         <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/530000/527500/527462/d16ccf58.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="Hotel Málaga Alameda Centro Affiliated by Meliá" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg';">
         <div class="hotel-info"><span class="hotel-city">Málaga</span><h3>Málaga Alameda Centro</h3><div class="hotel-meta"><span>24–27 oct.</span><span>3 noches</span></div><div class="hotel-note">Affiliated by Meliá.</div></div>
       </article>
-      <article class="hotel-card glass">
+      <article class="hotel-card glass" role="button" tabindex="0" data-detail="hotel-villa-reina">
         <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/850000/849500/849469/d5719354.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="H10 Villa de la Reina en Gran Vía, Madrid" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg';">
         <div class="hotel-info"><span class="hotel-city">Madrid · Gran Vía</span><h3>H10 Villa de la Reina</h3><div class="hotel-meta"><span>27–28 oct.</span><span>1 noche</span></div><div class="hotel-note">La última noche del viaje, en plena Gran Vía.</div></div>
       </article>
@@ -274,10 +325,23 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
   <div class="container">
     <div class="section-head"><h2>La ruta.</h2><p>Para que se vea rápido por dónde vamos: Madrid, bajamos por Andalucía y terminamos otra vez en Madrid.</p></div>
     <div class="map-shell glass">
-      <div id="map" role="region" aria-label="Mapa real de España con la ruta del viaje"></div>
+      <div class="real-map" role="img" aria-label="Mapa real de España por provincias con la ruta del viaje trazada en rojo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blank_Spain_Map_%28Provinces%29.svg/960px-Blank_Spain_Map_%28Provinces%29.svg.png" alt="Mapa real de España por provincias" onerror="this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Blank%20Spain%20Map%20(Provinces).svg?width=1280'">
+        <svg class="route-overlay" viewBox="0 0 960 661" aria-hidden="true">
+          <path class="route-line" d="M535 244 L540 464 L481 416 L420 450 L462 493 L461 485 L499 495"/>
+          <path class="route-line return-line" d="M499 495 L535 244"/>
+          <g><circle class="stop-ring" cx="535" cy="244" r="11"/><circle class="stop-dot" cx="535" cy="244" r="7"/><text x="550" y="232">Madrid</text></g>
+          <g><circle class="stop-ring" cx="540" cy="464" r="11"/><circle class="stop-dot" cx="540" cy="464" r="7"/><text x="555" y="456">Granada</text></g>
+          <g><circle class="stop-ring" cx="481" cy="416" r="11"/><circle class="stop-dot" cx="481" cy="416" r="7"/><text x="494" y="406">Córdoba</text></g>
+          <g><circle class="stop-ring" cx="420" cy="450" r="11"/><circle class="stop-dot" cx="420" cy="450" r="7"/><text x="355" y="440">Sevilla</text></g>
+          <g><circle class="stop-ring" cx="462" cy="493" r="11"/><circle class="stop-dot" cx="462" cy="493" r="7"/><text x="405" y="518">Ronda</text></g>
+          <g><circle class="stop-ring" cx="461" cy="485" r="11"/><circle class="stop-dot" cx="461" cy="485" r="7"/></g>
+          <g><circle class="stop-ring" cx="499" cy="495" r="11"/><circle class="stop-dot" cx="499" cy="495" r="7"/><text x="510" y="522">Málaga</text></g>
+        </svg>
+      </div>
       <div class="map-note">
         <div class="route-chips"><span>Madrid</span><span>Granada</span><span>Córdoba</span><span>Sevilla</span><span>Ronda</span><span>Setenil</span><span>Málaga</span><span>Madrid</span></div>
-        <span>Ruta visual aproximada · el recorrido real por carretera puede variar.</span>
+        <span>Mapa geográfico real · la línea roja resume la secuencia del viaje y no representa cada carretera exacta.</span>
       </div>
     </div>
   </div>
@@ -333,6 +397,18 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
     </div>
   </div>
 </section>
+
+<dialog class="detail-dialog" id="detailDialog">
+  <div class="detail-scroll">
+    <div class="detail-hero"><img id="detailHeroImg" alt=""><button class="detail-close" id="detailClose" type="button" aria-label="Cerrar">×</button><div class="detail-heading"><span class="detail-eyebrow" id="detailType"></span><h2 id="detailTitle"></h2><p id="detailDesc"></p></div></div>
+    <div class="detail-body">
+      <div class="detail-gallery" id="detailGallery"></div>
+      <div class="detail-columns"><section class="detail-section"><h3>Lo que vale la pena</h3><ul class="detail-list" id="detailHighlights"></ul></section><section class="detail-section"><h3>Para tener en mente</h3><ul class="detail-list" id="detailTips"></ul><div class="detail-actions" id="detailActions"></div></section></div>
+      <p class="detail-note">Esta mini guía es para organizarnos en familia. En lugares con horarios, reservas o restaurantes, verificamos el mismo día por si algo cambió.</p>
+    </div>
+  </div>
+</dialog>
+
 </main>
 
 <footer>
@@ -340,7 +416,6 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
   <div class="credits">Fotos de ciudades: Wikimedia Commons · Fotos de hoteles: galerías públicas de los alojamientos y Expedia/Hotels.com.</div>
 </footer>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 const inicio = new Date('2026-10-19T10:25:00');
 const fin = new Date('2026-10-28T23:59:59');
@@ -360,32 +435,40 @@ function tick(){
 }
 tick(); setInterval(tick,1000);
 
-const route = [
-  ['Madrid',40.4168,-3.7038],
-  ['Granada',37.1773,-3.5986],
-  ['Córdoba',37.8882,-4.7794],
-  ['Sevilla',37.3891,-5.9845],
-  ['Ronda',36.7462,-5.1612],
-  ['Setenil de las Bodegas',36.8631,-5.1817],
-  ['Málaga',36.7213,-4.4214],
-  ['Madrid',40.4168,-3.7038]
-];
-if(window.L){
-  const map = L.map('map',{scrollWheelZoom:false, zoomControl:true});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom:19,
-    attribution:'&copy; OpenStreetMap'
-  }).addTo(map);
-  const latlngs = route.map(r => [r[1],r[2]]);
-  L.polyline(latlngs,{color:'#C01F2F',weight:5,opacity:0.95,lineCap:'round',lineJoin:'round'}).addTo(map);
-  route.slice(0,-1).forEach((r,i)=>{
-    const icon = L.divIcon({className:'',html:'<div class="route-marker"></div>',iconSize:[16,16],iconAnchor:[8,8]});
-    L.marker([r[1],r[2]],{icon}).addTo(map).bindPopup('<strong>'+r[0]+'</strong><br><span style="opacity:.72">Parada '+(i+1)+'</span>');
-  });
-  map.fitBounds(L.latLngBounds(latlngs).pad(0.18));
-}else{
-  document.getElementById('map').innerHTML='<div style="padding:32px;color:#5E101B">El mapa se carga al tener conexión a internet.</div>';
+
+
+const detailData={"city-madrid":{"type":"Ciudad","title":"Madrid","desc":"Primera y última parada. Aquí tenemos de todo cerca: Gran Vía, barrios para caminar, plazas, museos y sitios para comer sin tener que montar una expedición.","photos":["https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Madrid%20Plaza%20Mayor%20%2848733706273%29.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/MADRID%20100206%20UDCI%20023.jpg?width=1400"],"highlights":["<strong>Gran Vía:</strong> caminarla de día y volver a verla encendida por la noche.","<strong>Puerta del Sol + Plaza Mayor:</strong> quedan perfectas para hacerlas juntas a pie.","<strong>Retiro:</strong> buena opción para la primera tarde si queremos algo tranquilo.","<strong>Mercado / tapeo:</strong> dejar un rato sin plan fijo para sentarnos donde nos guste."],"tips":["La primera noche estamos junto al Retiro; la última, directamente en Gran Vía.","En el centro casi todo se presta para caminar. Calzado cómodo y ya.","La última noche es buena para dejar compras, cena y paseo sin tour."]},"city-granada":{"type":"Ciudad","title":"Granada","desc":"De las paradas más cargadas del viaje: Alhambra, Albaicín, miradores y flamenco. Aquí sí vale la pena tener la cámara lista todo el tiempo.","photos":["https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Granada%20-%20View%20from%20Mirador%20de%20San%20Nicol%C3%A1s%20-%2002.jpg?width=1400","https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg"],"highlights":["<strong>Alhambra + Generalife:</strong> el must del viaje.","<strong>Albaicín:</strong> callejear sin prisa después del tour.","<strong>Mirador de San Nicolás:</strong> de los puntos clásicos para ver la Alhambra.","<strong>Sacromonte / flamenco:</strong> ya tenemos espectáculo incluido en el plan."],"tips":["Para la Alhambra: pasaporte original sí o sí.","Hay bastantes cuestas y adoquines; ese día no es para estrenar zapatos.","Dejar espacio para tapas y para simplemente caminar el centro."]},"city-cordoba":{"type":"Parada","title":"Córdoba","desc":"Es una parada de varias horas, así que la idea es ir directo a lo importante y después sentarnos a almorzar tranquilos antes de seguir a Sevilla.","photos":["https://commons.wikimedia.org/wiki/Special:FilePath/Interior%20Mezquita%20Cordoba%20Spain.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Mezquita-Catedral%20de%20C%C3%B3rdoba%2C%20Espa%C3%B1a.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/La%20Mezquita%20Mosque-Cathedral%2C%20Cordoba%2C%20Spain.jpg?width=1400"],"highlights":["<strong>Mezquita-Catedral:</strong> la visita principal.","<strong>Judería:</strong> calles pequeñas alrededor de la Mezquita.","<strong>Puente Romano:</strong> si sobra tiempo, buen punto para fotos.","<strong>Calleja de las Flores:</strong> parada rápida y clásica en el centro histórico."],"tips":["Llegamos aprox. 12:00 p. m. y salimos 5:00 p. m.","El tiempo libre está pensado principalmente para almorzar.","No intentaría meter demasiadas cosas: mejor ver bien el centro y seguir."]},"city-sevilla":{"type":"Ciudad","title":"Sevilla","desc":"Dos noches y una de las ciudades que más cosas tiene cerca unas de otras. El día guiado cubre lo grande; la tarde queda para caminarla a nuestro ritmo.","photos":["https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Los%20Reales%20Alcazares%20de%20Sevilla.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Sevilla%20Cathedral%20-%20Giralda.jpg?width=1400"],"highlights":["<strong>Real Alcázar:</strong> palacios, patios y jardines.","<strong>Catedral + Giralda:</strong> van dentro de la visita guiada.","<strong>Plaza de España:</strong> perfecta para la tarde libre.","<strong>Triana:</strong> buena opción para cruzar el río y comer/tapear.","<strong>Parque de María Luisa:</strong> queda al lado de Plaza de España."],"tips":["La zona monumental se hace muy bien caminando.","El hotel queda cerca del río y el Puente de Triana.","La tarde libre del día 5 es donde yo dejaría Plaza de España + caminar + comer."]},"city-ronda":{"type":"Parada","title":"Ronda","desc":"Aquí lo que manda es el paisaje. El Tajo y el Puente Nuevo son de esos sitios que se ven exactamente como uno espera… pero más grandes.","photos":["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Puente_Nuevo_Ronda.jpg/1280px-Puente_Nuevo_Ronda.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Tajo%20de%20Ronda.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Ronda%20Alameda%20del%20Tajo.jpg?width=1400"],"highlights":["<strong>Puente Nuevo:</strong> la foto obligatoria.","<strong>Tajo de Ronda:</strong> buscar más de un mirador porque cambia completamente la vista.","<strong>Alameda del Tajo:</strong> paseo sencillo con vistas.","<strong>Centro histórico:</strong> caminarlo entre la visita y el almuerzo."],"tips":["Llegada estimada alrededor de mediodía.","Tenemos visita guiada y almuerzo antes de seguir.","No hace falta alejarse mucho; lo mejor está concentrado."]},"city-setenil":{"type":"Parada","title":"Setenil de las Bodegas","desc":"Esta parada es para caminar y mirar hacia arriba. Parte del pueblo está literalmente metido debajo de la roca y ahí está todo el encanto.","photos":["https://commons.wikimedia.org/wiki/Special:FilePath/Calle-cueva-del-sol.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Setenil%20vista%20%2821%29.JPG?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Setenil%20de%20las%20Bodegas%2C%202023%20%2814%29.jpg?width=1400"],"highlights":["<strong>Cuevas del Sol:</strong> la calle más conocida y con más ambiente.","<strong>Cuevas de la Sombra:</strong> literalmente bajo la roca.","<strong>Miradores del pueblo:</strong> para entender cómo están construidas las casas.","<strong>Centro histórico:</strong> pequeño; se presta para caminarlo sin agenda."],"tips":["Es tiempo libre, así que aquí no hay que correr detrás de un guía.","Hay desniveles y calles estrechas.","Buen sitio para café, algo pequeño de comer y fotos."]},"city-malaga":{"type":"Ciudad","title":"Málaga","desc":"Tres noches, así que es donde más podemos bajar revoluciones. Tenemos centro histórico y un día completamente libre para decidir allá qué nos apetece.","photos":["https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/M%C3%A1laga%20Alcazaba%2002.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Malaga%20NZ7%201101%20%2849601678456%29.jpg?width=1400"],"highlights":["<strong>Alcazaba + Gibralfaro:</strong> ya están en el recorrido guiado.","<strong>Centro histórico:</strong> Catedral, calles peatonales y terrazas.","<strong>Casa Natal de Picasso:</strong> incluida en el tour.","<strong>Muelle Uno:</strong> paseo fácil para tarde/noche.","<strong>Playa:</strong> el día libre queda perfecto si el clima acompaña."],"tips":["El día 8 está completamente libre.","Málaga es la parada para hacer menos itinerario y más vacaciones.","El 27 salimos temprano hacia la estación."]},"hotel-puerta-alcala":{"type":"Hotel · Madrid","title":"H10 Puerta de Alcalá","desc":"Primera noche. Está en el barrio de Salamanca, junto al Retiro, así que llegamos y ya tenemos una zona bien caminable sin tener que cruzarnos Madrid entero.","photos":["https://images.trvl-media.com/lodging/1000000/530000/523300/523266/2b31af8d.jpg?impolicy=resizecrop&ra=fit&rw=1200","https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Madrid%20Plaza%20Mayor%20%2848733706273%29.jpg?width=1400"],"highlights":["<strong>Ubicación:</strong> Alcalá 66, barrio de Salamanca.","<strong>Del hotel:</strong> terraza El Cielo de Alcalá con vistas al Retiro, lobby bar y restaurante.","<strong>Cerca:</strong> Parque del Retiro, Puerta de Alcalá y zona comercial de Serrano."],"tips":["Perfecto para una primera tarde tranquila después del vuelo.","Yo haría Retiro + caminar la zona + cena cerca, sin complicarnos."],"url":"https://www.h10hotels.com/es/hoteles-madrid/h10-puerta-de-alcala"},"hotel-puerta-real":{"type":"Hotel · Granada","title":"Eurostars Puerta Real","desc":"Dos noches en pleno centro. La ventaja grande es esa: podemos salir caminando y ya estamos metidos en la parte más activa de Granada.","photos":["https://images.trvl-media.com/lodging/1000000/610000/601000/600909/2fd32008.jpg?impolicy=resizecrop&ra=fit&rw=1200","https://commons.wikimedia.org/wiki/Special:FilePath/Granada%20-%20View%20from%20Mirador%20de%20San%20Nicol%C3%A1s%20-%2002.jpg?width=1400","https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg"],"highlights":["<strong>Ubicación:</strong> Acera del Darro 24, centro de Granada.","<strong>Cerca:</strong> Teatro Isabel la Católica, centro histórico y acceso cómodo hacia Albaicín/Alhambra.","<strong>Lo bueno:</strong> para cenar o caminar de noche no dependemos tanto de transporte."],"tips":["El día del Albaicín el guía nos recoge en el hotel.","El día de la Alhambra también salimos desde aquí temprano."],"url":"https://www.eurostarshotels.com/eurostars-puerta-real.html"},"hotel-nh-sevilla":{"type":"Hotel · Sevilla","title":"NH Sevilla Plaza de Armas","desc":"Dos noches, cerca del río y con buen acceso caminando al centro. Además tiene piscina en la azotea, que nunca está de más después de un día entero caminando.","photos":["https://images.trvl-media.com/lodging/1000000/530000/523400/523322/2f2ba026.jpg?impolicy=resizecrop&ra=fit&rw=1200","https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Sevilla%20Cathedral%20-%20Giralda.jpg?width=1400"],"highlights":["<strong>Ubicación:</strong> Marqués de Paradas 13.","<strong>Del hotel:</strong> piscina, gimnasio y decoración renovada.","<strong>Cerca:</strong> Museo de Bellas Artes, Puente de Triana y zona centro.","<strong>Referencia:</strong> la Catedral está a alrededor de 1 km."],"tips":["Buen hotel para salir caminando hacia Triana por la tarde/noche.","Para Plaza de España queda más lejos, pero ese día ya estaremos por la zona monumental."],"url":"https://www.nh-hotels.com/es/hotel/nh-sevilla-plaza-de-armas"},"hotel-malaga-alameda":{"type":"Hotel · Málaga","title":"Málaga Alameda Centro · Affiliated by Meliá","desc":"Nuestra base más larga: tres noches. Está en Avenida de la Aurora 31 y nos sirve para tener un punto fijo mientras hacemos el tour y el día libre.","photos":["https://images.trvl-media.com/lodging/1000000/530000/527500/527462/d16ccf58.jpg?impolicy=resizecrop&ra=fit&rw=1200","https://commons.wikimedia.org/wiki/Special:FilePath/M%C3%A1laga%20Alcazaba%2002.jpg?width=1400","https://commons.wikimedia.org/wiki/Special:FilePath/Malaga%20NZ7%201101%20%2849601678456%29.jpg?width=1400"],"highlights":["<strong>Ubicación:</strong> Av. de la Aurora 31.","<strong>Plan:</strong> tres noches, incluyendo nuestro día completamente libre.","<strong>Cerca:</strong> centro comercial y conexión sencilla hacia el centro histórico / estación María Zambrano."],"tips":["Aquí vale la pena desempacar de verdad porque son tres noches 😂.","El 27 la recogida para la estación está prevista temprano."]},"hotel-villa-reina":{"type":"Hotel · Madrid · Gran Vía","title":"H10 Villa de la Reina","desc":"La última noche cae donde mejor nos podía caer: Gran Vía 22. Salimos del hotel y ya estamos en medio de Madrid, así que esa tarde/noche la podemos aprovechar sin transporte.","photos":["https://images.trvl-media.com/lodging/1000000/850000/849500/849469/d5719354.jpg?impolicy=resizecrop&ra=fit&rw=1200","https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg","https://commons.wikimedia.org/wiki/Special:FilePath/Madrid%20Plaza%20Mayor%20%2848733706273%29.jpg?width=1400"],"highlights":["<strong>El hotel:</strong> boutique en un edificio de principios del siglo XX, con interior de aire francés.","<strong>Dentro:</strong> Restaurante Las Infantas, Bar La Villa y biblioteca.","<strong>A pie:</strong> Puerta del Sol, Plaza Mayor, Teatro Real, tiendas de Gran Vía y Galería Canalejas.","<strong>Para comer cerca:</strong> Beata Pasta (Gran Vía 22), Tapa Tapa Montera y Vinitus Gran Vía son opciones bien cercanas."],"tips":["Esta es la noche para caminar Gran Vía, cenar y volver al hotel sin mirar el reloj.","Si queremos compras de última hora, mejor aquí que en la mañana del vuelo.","Horarios/restaurantes pueden cambiar; conviene confirmar el mismo día."],"url":"https://www.h10hotels.com/es/hoteles-madrid/h10-villa-de-la-reina"}};
+const dialog=document.getElementById('detailDialog');
+const dHero=document.getElementById('detailHeroImg');
+const dType=document.getElementById('detailType');
+const dTitle=document.getElementById('detailTitle');
+const dDesc=document.getElementById('detailDesc');
+const dGallery=document.getElementById('detailGallery');
+const dHighlights=document.getElementById('detailHighlights');
+const dTips=document.getElementById('detailTips');
+const dActions=document.getElementById('detailActions');
+let lastTrigger=null;
+function openDetail(id,trigger){
+  const d=detailData[id]; if(!d) return;
+  lastTrigger=trigger||null;
+  dHero.src=d.photos[0]; dHero.alt=d.title;
+  dType.textContent=d.type; dTitle.textContent=d.title; dDesc.textContent=d.desc;
+  dGallery.innerHTML=d.photos.map((src,i)=>`<button type="button" aria-label="Ver foto ${i+1} de ${d.title}"><img loading="lazy" src="${src}" alt="${d.title} · foto ${i+1}"></button>`).join('');
+  dGallery.querySelectorAll('button').forEach((b,i)=>b.addEventListener('click',()=>{dHero.src=d.photos[i];dHero.scrollIntoView({behavior:'smooth',block:'nearest'});}));
+  dHighlights.innerHTML=d.highlights.map(x=>`<li>${x}</li>`).join('');
+  dTips.innerHTML=d.tips.map(x=>`<li>${x}</li>`).join('');
+  dActions.innerHTML=d.url?`<a class="detail-action primary" href="${d.url}" target="_blank" rel="noopener">Ver web oficial ↗</a>`:'';
+  if(typeof dialog.showModal==='function') dialog.showModal(); else dialog.setAttribute('open','');
+  document.body.style.overflow='hidden';
 }
+function closeDetail(){if(dialog.open) dialog.close();document.body.style.overflow='';if(lastTrigger) lastTrigger.focus();}
+document.querySelectorAll('[data-detail]').forEach(el=>{
+  el.addEventListener('click',()=>openDetail(el.dataset.detail,el));
+  if(el.tagName!=='BUTTON') el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(el.dataset.detail,el);}});
+});
+document.getElementById('detailClose').addEventListener('click',closeDetail);
+dialog.addEventListener('click',e=>{const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) closeDetail();});
+dialog.addEventListener('close',()=>{document.body.style.overflow='';});
 
 </script>
 </body>
