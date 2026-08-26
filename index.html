@@ -110,11 +110,28 @@ h1{font-size:clamp(3rem,8vw,6.7rem);line-height:.92;max-width:920px;margin-top:1
 .photo-overlay{position:absolute;inset:auto 0 0;padding:22px;background:linear-gradient(transparent,rgba(35,7,11,.90));z-index:2}
 .photo-overlay strong{font:800 1.35rem/1 'Manrope',sans-serif}
 .photo-overlay span{display:block;color:rgba(255,255,255,.66);font-size:.86rem;margin-top:5px}
+.hotels-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.hotel-card{position:relative;overflow:hidden;border-radius:28px;min-height:280px;border:1px solid rgba(255,255,255,.15);box-shadow:var(--shadow);background:rgba(255,255,255,.06)}
+.hotel-card:nth-child(1){grid-column:span 7;min-height:340px}
+.hotel-card:nth-child(2){grid-column:span 5;min-height:340px}
+.hotel-card:nth-child(3),.hotel-card:nth-child(4),.hotel-card:nth-child(5){grid-column:span 4}
+.hotel-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease;filter:saturate(.92) contrast(1.02)}
+.hotel-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,7,10,.03) 20%,rgba(28,7,10,.30) 54%,rgba(24,6,9,.94) 100%);z-index:1}
+.hotel-card:hover img{transform:scale(1.035)}
+.hotel-info{position:absolute;z-index:2;inset:auto 0 0;padding:22px}
+.hotel-city{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(255,248,232,.13);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.10em;color:#FFE5A1;margin-bottom:10px}
+.hotel-info h3{font-size:clamp(1.25rem,2.4vw,1.8rem);line-height:1.05;letter-spacing:-.035em;color:#fff}
+.hotel-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;color:rgba(255,255,255,.70);font-size:.83rem}
+.hotel-meta span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
+.hotel-note{margin-top:9px;color:rgba(255,255,255,.64);font-size:.86rem}
 .map-shell{border-radius:32px;padding:14px;overflow:hidden}
-#map{height:520px;border-radius:24px;overflow:hidden;background:#dce4ea}
+#map{height:560px;border-radius:24px;overflow:hidden;background:#efe4cf;border:1px solid rgba(94,16,27,.10)}
 .map-note{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 10px 6px;color:var(--muted);font-size:.9rem}
 .route-chips{display:flex;gap:8px;flex-wrap:wrap}
 .route-chips span{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-size:.78rem;color:rgba(255,255,255,.76)}
+.leaflet-container{font-family:'DM Sans',sans-serif}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#5E101B;color:#fff}
+.route-marker{width:16px;height:16px;border-radius:50%;background:#FFF8E8;border:4px solid #C01F2F;box-shadow:0 0 0 5px rgba(192,31,47,.16)}
 
 .city-times-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
 .city-time-card{border-radius:22px;padding:18px 19px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
@@ -153,14 +170,11 @@ h1{font-size:clamp(3rem,8vw,6.7rem);line-height:.92;max-width:920px;margin-top:1
 .chat-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.22)}
 footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-size:.83rem}
 .credits{margin-top:12px;font-size:.72rem;line-height:1.55;color:rgba(255,255,255,.32)}
-.leaflet-container{font-family:'DM Sans',sans-serif}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#5E101B;color:#fff}
-.route-marker{width:16px;height:16px;border-radius:50%;background:#FFF8E8;border:4px solid #F3C552;box-shadow:0 0 0 5px rgba(182,40,53,.22)}
 @media(max-width:900px){
-  .navlinks{display:none}.hero-frame{min-height:620px}.intro-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:300px 230px 230px}.photo-card:first-child{grid-row:auto;grid-column:1/3}.day-body{grid-template-columns:1fr}.day-photo{height:230px}
+  .navlinks{display:none}.hero-frame{min-height:620px}.intro-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:300px 230px 230px}.photo-card:first-child{grid-row:auto;grid-column:1/3}.hotels-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hotel-card,.hotel-card:nth-child(1),.hotel-card:nth-child(2),.hotel-card:nth-child(3),.hotel-card:nth-child(4),.hotel-card:nth-child(5){grid-column:span 1;min-height:300px}.hotel-card:last-child{grid-column:1/3}.day-body{grid-template-columns:1fr}.day-photo{height:230px}
 }
 @media(max-width:620px){
-  .container{width:min(100% - 20px,1180px)}nav{top:8px;margin-top:8px}.hero{padding-top:12px}.hero-frame{min-height:650px;border-radius:26px}.hero-content{padding:24px}.countdown{grid-template-columns:repeat(2,1fr)}.section{padding-top:58px}.section-head{display:block}.section-head p{margin-top:10px}.quick-grid{grid-template-columns:1fr 1fr}.photo-grid{display:grid;grid-template-columns:1fr;grid-template-rows:330px 230px 230px 230px 230px}.photo-card:first-child{grid-column:auto}.day summary{grid-template-columns:auto 1fr auto}.day-date{display:none}.day-body{padding-left:16px;padding-right:16px}#map{height:440px}
+  .container{width:min(100% - 20px,1180px)}nav{top:8px;margin-top:8px}.hero{padding-top:12px}.hero-frame{min-height:650px;border-radius:26px}.hero-content{padding:24px}.countdown{grid-template-columns:repeat(2,1fr)}.section{padding-top:58px}.section-head{display:block}.section-head p{margin-top:10px}.quick-grid{grid-template-columns:1fr 1fr}.photo-grid{display:grid;grid-template-columns:1fr;grid-template-rows:330px 230px 230px 230px 230px}.photo-card:first-child{grid-column:auto}.hotels-grid{grid-template-columns:1fr}.hotel-card,.hotel-card:nth-child(1),.hotel-card:nth-child(2),.hotel-card:nth-child(3),.hotel-card:nth-child(4),.hotel-card:nth-child(5),.hotel-card:last-child{grid-column:auto;min-height:280px}.day summary{grid-template-columns:auto 1fr auto}.day-date{display:none}.day-body{padding-left:16px;padding-right:16px}#map{height:440px}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
@@ -169,7 +183,7 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
 <nav class="glass">
   <div class="brand"><span class="brand-dot"></span>España en familia</div>
   <div class="navlinks">
-    <a href="#historia">El viaje</a><a href="#lugares">Lugares</a><a href="#ruta">Ruta</a><a href="#horarios">Horarios</a><a href="#itinerario">Itinerario</a><a href="#grupo">Grupo</a>
+    <a href="#historia">El viaje</a><a href="#lugares">Lugares</a><a href="#hoteles">Hoteles</a><a href="#ruta">Ruta</a><a href="#horarios">Horarios</a><a href="#itinerario">Itinerario</a><a href="#grupo">Grupo</a>
   </div>
 </nav>
 
@@ -228,11 +242,39 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
   </div>
 </section>
 
+<section class="section" id="hoteles">
+  <div class="container">
+    <div class="section-head"><h2>Aquí vamos a dormir.</h2><p>Por si alguien quiere stalkear los hoteles antes de llegar 😂. Estos son los cinco que tenemos durante la ruta.</p></div>
+    <div class="hotels-grid">
+      <article class="hotel-card glass">
+        <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/530000/523300/523266/2b31af8d.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="H10 Puerta de Alcalá en Madrid" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg';">
+        <div class="hotel-info"><span class="hotel-city">Madrid</span><h3>H10 Puerta de Alcalá</h3><div class="hotel-meta"><span>19–20 oct.</span><span>1 noche</span></div><div class="hotel-note">Nuestra primera noche en España.</div></div>
+      </article>
+      <article class="hotel-card glass">
+        <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/610000/601000/600909/2fd32008.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="Eurostars Puerta Real en Granada" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg';">
+        <div class="hotel-info"><span class="hotel-city">Granada</span><h3>Eurostars Puerta Real</h3><div class="hotel-meta"><span>20–22 oct.</span><span>2 noches</span></div><div class="hotel-note">Aquí nos quedamos mientras recorremos Granada.</div></div>
+      </article>
+      <article class="hotel-card glass">
+        <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/530000/523400/523322/2f2ba026.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="NH Sevilla Plaza de Armas" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg';">
+        <div class="hotel-info"><span class="hotel-city">Sevilla</span><h3>NH Sevilla Plaza de Armas</h3><div class="hotel-meta"><span>22–24 oct.</span><span>2 noches</span></div></div>
+      </article>
+      <article class="hotel-card glass">
+        <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/530000/527500/527462/d16ccf58.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="Hotel Málaga Alameda Centro Affiliated by Meliá" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg';">
+        <div class="hotel-info"><span class="hotel-city">Málaga</span><h3>Málaga Alameda Centro</h3><div class="hotel-meta"><span>24–27 oct.</span><span>3 noches</span></div><div class="hotel-note">Affiliated by Meliá.</div></div>
+      </article>
+      <article class="hotel-card glass">
+        <img loading="lazy" src="https://images.trvl-media.com/lodging/1000000/850000/849500/849469/d5719354.jpg?impolicy=resizecrop&amp;ra=fit&amp;rw=598" alt="H10 Villa de la Reina en Gran Vía, Madrid" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg';">
+        <div class="hotel-info"><span class="hotel-city">Madrid · Gran Vía</span><h3>H10 Villa de la Reina</h3><div class="hotel-meta"><span>27–28 oct.</span><span>1 noche</span></div><div class="hotel-note">La última noche del viaje, en plena Gran Vía.</div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="ruta">
   <div class="container">
     <div class="section-head"><h2>La ruta.</h2><p>Para que se vea rápido por dónde vamos: Madrid, bajamos por Andalucía y terminamos otra vez en Madrid.</p></div>
     <div class="map-shell glass">
-      <div id="map" role="region" aria-label="Mapa interactivo de la ruta del viaje"></div>
+      <div id="map" role="region" aria-label="Mapa real de España con la ruta del viaje"></div>
       <div class="map-note">
         <div class="route-chips"><span>Madrid</span><span>Granada</span><span>Córdoba</span><span>Sevilla</span><span>Ronda</span><span>Setenil</span><span>Málaga</span><span>Madrid</span></div>
         <span>Ruta visual aproximada · el recorrido real por carretera puede variar.</span>
@@ -295,7 +337,7 @@ footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-si
 
 <footer>
   <div class="container">España 2026 🇪🇸 · En familia, que es como mejor se viaja. ♡</div>
-  <div class="credits">Fotos de referencia: Nicolas Vigier / CC0; Trumpf / dominio público; CarlosVdeHabsburgo / CC BY-SA 4.0; Elaeudanla278 / CC BY-SA 3.0; Daniel Capilla / CC BY-SA 4.0 · vía Wikimedia Commons.</div>
+  <div class="credits">Fotos de ciudades: Wikimedia Commons · Fotos de hoteles: galerías públicas de los alojamientos y Expedia/Hotels.com.</div>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -329,18 +371,22 @@ const route = [
   ['Madrid',40.4168,-3.7038]
 ];
 if(window.L){
-  const map=L.map('map',{scrollWheelZoom:false,zoomControl:true});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
-  const latlngs=route.map(r=>[r[1],r[2]]);
-  L.polyline(latlngs,{color:'#F3C552',weight:5,opacity:.95,lineCap:'round',dashArray:'1 0'}).addTo(map);
+  const map = L.map('map',{scrollWheelZoom:false, zoomControl:true});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'&copy; OpenStreetMap'
+  }).addTo(map);
+  const latlngs = route.map(r => [r[1],r[2]]);
+  L.polyline(latlngs,{color:'#C01F2F',weight:5,opacity:0.95,lineCap:'round',lineJoin:'round'}).addTo(map);
   route.slice(0,-1).forEach((r,i)=>{
-    const icon=L.divIcon({className:'',html:'<div class="route-marker"></div>',iconSize:[16,16],iconAnchor:[8,8]});
+    const icon = L.divIcon({className:'',html:'<div class="route-marker"></div>',iconSize:[16,16],iconAnchor:[8,8]});
     L.marker([r[1],r[2]],{icon}).addTo(map).bindPopup('<strong>'+r[0]+'</strong><br><span style="opacity:.72">Parada '+(i+1)+'</span>');
   });
-  map.fitBounds(L.latLngBounds(latlngs).pad(.16));
+  map.fitBounds(L.latLngBounds(latlngs).pad(0.18));
 }else{
   document.getElementById('map').innerHTML='<div style="padding:32px;color:#5E101B">El mapa se carga al tener conexión a internet.</div>';
 }
+
 </script>
 </body>
 </html>
