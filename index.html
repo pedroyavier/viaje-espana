@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5E101B">
+<title>Nuestro viaje en familia · España 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3yn7xB+o1MZ0Lt9onptY8c7GHG4hM=" crossorigin="">
+<style>
+:root{
+  --bg:#190B0E;
+  --bg2:#321116;
+  --text:#FFF9EF;
+  --muted:rgba(255,249,239,.69);
+  --line:rgba(255,240,215,.15);
+  --glass:rgba(255,245,225,.095);
+  --glass-strong:rgba(255,245,225,.15);
+  --shadow:0 24px 80px rgba(40,4,8,.38);
+  --r:28px;
+  --accent:#F3C552;
+  --accent2:#B62835;
+  --terracotta:#C96C42;
+  --navy:#243650;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:var(--text);
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 9% 4%, rgba(243,197,82,.20), transparent 27%),
+    radial-gradient(circle at 91% 17%, rgba(182,40,53,.24), transparent 31%),
+    radial-gradient(circle at 58% 57%, rgba(201,108,66,.13), transparent 38%),
+    radial-gradient(circle at 24% 82%, rgba(36,54,80,.18), transparent 30%),
+    linear-gradient(145deg,#16090C 0%,#281014 45%,#3A1219 100%);
+  overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background-image:
+    linear-gradient(rgba(255,241,218,.017) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,241,218,.017) 1px,transparent 1px);
+  background-size:46px 46px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.62),transparent 78%);
+}
+a{color:inherit}
+img{display:block;width:100%;height:100%;object-fit:cover}
+.container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+.glass{
+  background:linear-gradient(145deg,rgba(255,247,232,.14),rgba(255,236,211,.055));
+  border:1px solid rgba(255,235,205,.18);
+  box-shadow:inset 0 1px 0 rgba(255,250,239,.20),var(--shadow);
+  backdrop-filter:blur(24px) saturate(145%);
+  -webkit-backdrop-filter:blur(24px) saturate(145%);
+}
+nav{
+  position:sticky;top:14px;z-index:100;
+  width:min(930px,calc(100% - 28px));margin:14px auto 0;
+  border-radius:999px;padding:8px 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-family:'Manrope',sans-serif;letter-spacing:-.02em;padding-left:8px}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,#B62835 0 34%,#F3C552 34% 66%,#B62835 66% 100%);box-shadow:0 0 20px rgba(243,197,82,.45)}
+.navlinks{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.navlinks a{text-decoration:none;font-size:.86rem;color:var(--muted);padding:9px 13px;border-radius:999px;transition:.2s ease}
+.navlinks a:hover{color:white;background:rgba(255,255,255,.10)}
+.hero{padding:26px 0 32px}
+.hero-frame{
+  min-height:690px;border-radius:36px;overflow:hidden;position:relative;
+  background-image:
+    linear-gradient(180deg,rgba(41,8,13,.08),rgba(41,8,13,.38) 45%,rgba(25,7,10,.92) 100%),
+    url('https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg');
+  background-size:cover;background-position:center;
+  border:1px solid rgba(255,235,205,.16);box-shadow:inset 0 4px 0 rgba(243,197,82,.75),0 34px 100px rgba(55,6,12,.46)
+}
+.hero-frame::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 76% 24%,rgba(243,197,82,.20),transparent 30%),radial-gradient(circle at 18% 70%,rgba(182,40,53,.20),transparent 34%),linear-gradient(100deg,rgba(39,8,12,.46),transparent 50%);pointer-events:none}
+.hero-content{position:absolute;inset:auto 0 0;padding:clamp(26px,5vw,58px);z-index:2}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;font-size:.82rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px)}
+h1,h2,h3{font-family:'Manrope',sans-serif;margin:0;letter-spacing:-.04em}
+h1{font-size:clamp(3rem,8vw,6.7rem);line-height:.92;max-width:920px;margin-top:18px}
+.hero-copy{max-width:650px;color:rgba(255,255,255,.78);font-size:clamp(1rem,2vw,1.18rem);margin:18px 0 0}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.pill{padding:10px 14px;border-radius:999px;background:rgba(53,11,16,.42);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);font-size:.9rem;color:rgba(255,255,255,.82)}
+.countdown{display:grid;grid-template-columns:repeat(4,minmax(86px,1fr));gap:10px;max-width:600px;margin-top:28px}
+.count-unit{padding:16px;border-radius:20px;text-align:left;background:rgba(53,11,16,.38);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(16px)}
+.count-num{font:800 clamp(1.8rem,4vw,2.6rem)/1 'Manrope',sans-serif}
+.count-label{font-size:.72rem;color:rgba(255,255,255,.62);text-transform:uppercase;letter-spacing:.12em;margin-top:5px}
+.section{padding:76px 0 18px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:26px}
+.section-head h2{font-size:clamp(2rem,5vw,3.8rem);line-height:1}
+.section-head p{max-width:480px;color:var(--muted);margin:0;font-size:1rem}
+.intro-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+.intro-card{border-radius:30px;padding:32px;min-height:260px;position:relative;overflow:hidden}
+.intro-card h3{font-size:clamp(1.6rem,4vw,2.6rem);max-width:620px}
+.intro-card p{color:var(--muted);font-size:1.02rem;max-width:630px}
+.big-number{position:absolute;right:20px;bottom:-20px;font:800 9rem/1 'Manrope',sans-serif;color:rgba(255,255,255,.045);letter-spacing:-.08em}
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.quick{border-radius:22px;padding:18px;min-height:124px;display:flex;flex-direction:column;justify-content:space-between}
+.quick .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.quick .value{font-family:'Manrope',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:-.03em}
+.photo-grid{display:grid;grid-template-columns:1.25fr .75fr .75fr;grid-template-rows:260px 260px;gap:14px}
+.photo-card{position:relative;overflow:hidden;border-radius:28px;border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);min-width:0}
+.photo-card:first-child{grid-row:1/3}
+.photo-card img{transition:transform .6s ease;filter:saturate(.92) contrast(1.02)}
+.photo-card:hover img{transform:scale(1.035)}
+.photo-overlay{position:absolute;inset:auto 0 0;padding:22px;background:linear-gradient(transparent,rgba(35,7,11,.90));z-index:2}
+.photo-overlay strong{font:800 1.35rem/1 'Manrope',sans-serif}
+.photo-overlay span{display:block;color:rgba(255,255,255,.66);font-size:.86rem;margin-top:5px}
+.map-shell{border-radius:32px;padding:14px;overflow:hidden}
+#map{height:520px;border-radius:24px;overflow:hidden;background:#dce4ea}
+.map-note{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 10px 6px;color:var(--muted);font-size:.9rem}
+.route-chips{display:flex;gap:8px;flex-wrap:wrap}
+.route-chips span{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-size:.78rem;color:rgba(255,255,255,.76)}
+
+.city-times-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
+.city-time-card{border-radius:22px;padding:18px 19px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.city-time-card h3{margin:0 0 12px;font:800 1rem/1.2 'Manrope',sans-serif;letter-spacing:-.02em;color:#fff}
+.city-time-card .stay{font-size:.72rem;text-transform:uppercase;letter-spacing:.11em;color:#F3C552;margin-left:7px;font-weight:800}
+.city-time-row{display:grid;grid-template-columns:72px 1fr;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.09);font-size:.88rem;line-height:1.4}
+.city-time-row:first-of-type{border-top:0;padding-top:0}
+.city-time-label{color:rgba(255,255,255,.48);font-weight:700}
+.city-time-value{color:rgba(255,255,255,.86)}
+.city-time-value small{display:block;color:rgba(255,255,255,.46);margin-top:2px;font-size:.78rem}
+.day-times{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.time-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);font-size:.78rem;color:rgba(255,255,255,.82)}
+.time-pill b{color:#FFE5A1;font-weight:800}
+@media(max-width:700px){.city-times-grid{grid-template-columns:1fr}.city-time-row{grid-template-columns:66px 1fr}}
+
+.timeline{display:grid;gap:14px}
+.day{border-radius:26px;overflow:hidden;transition:.22s ease}
+.day:hover{transform:translateY(-2px)}
+.day summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:16px;padding:20px 22px;min-height:82px}
+.day summary::-webkit-details-marker{display:none}
+.day-tag{min-width:64px;text-align:center;padding:8px 10px;border-radius:999px;font-size:.76rem;font-weight:800;background:linear-gradient(135deg,rgba(243,197,82,.24),rgba(182,40,53,.22));border:1px solid rgba(243,197,82,.28);color:#FFE5A1}
+.day-title{font:800 1.06rem/1.2 'Manrope',sans-serif;letter-spacing:-.025em}
+.day-date{color:var(--muted);font-size:.84rem}
+.chev{width:18px;height:18px;transition:transform .25s ease;color:rgba(255,255,255,.66)}
+.day[open] .chev{transform:rotate(180deg)}
+.day-body{display:grid;grid-template-columns:220px 1fr;gap:20px;padding:0 22px 22px}
+.day-photo{height:160px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.day-copy{color:rgba(255,255,255,.78);line-height:1.6}
+.day-copy p{margin:0 0 9px}
+.note{margin-top:10px;padding:12px 14px;border-radius:15px;background:rgba(243,197,82,.10);border:1px solid rgba(243,197,82,.20);color:#FFF0C4;font-size:.9rem}
+.chat{border-radius:34px;padding:clamp(28px,6vw,58px);text-align:center;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(182,40,53,.24),rgba(243,197,82,.12),rgba(201,108,66,.20));border:1px solid rgba(255,255,255,.18)}
+.chat::before{content:"";position:absolute;width:330px;height:330px;border-radius:50%;background:rgba(182,40,53,.20);filter:blur(70px);top:-160px;left:-60px}
+.chat h2{font-size:clamp(2rem,5vw,4rem);position:relative}
+.chat p{max-width:650px;margin:14px auto 24px;color:var(--muted);position:relative}
+.chat-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;font-weight:800;background:#FFF8E8;color:#5E101B;padding:14px 22px;border-radius:999px;position:relative;transition:.2s ease}
+.chat-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+footer{padding:54px 0 42px;text-align:center;color:rgba(255,255,255,.44);font-size:.83rem}
+.credits{margin-top:12px;font-size:.72rem;line-height:1.55;color:rgba(255,255,255,.32)}
+.leaflet-container{font-family:'DM Sans',sans-serif}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#5E101B;color:#fff}
+.route-marker{width:16px;height:16px;border-radius:50%;background:#FFF8E8;border:4px solid #F3C552;box-shadow:0 0 0 5px rgba(182,40,53,.22)}
+@media(max-width:900px){
+  .navlinks{display:none}.hero-frame{min-height:620px}.intro-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:300px 230px 230px}.photo-card:first-child{grid-row:auto;grid-column:1/3}.day-body{grid-template-columns:1fr}.day-photo{height:230px}
+}
+@media(max-width:620px){
+  .container{width:min(100% - 20px,1180px)}nav{top:8px;margin-top:8px}.hero{padding-top:12px}.hero-frame{min-height:650px;border-radius:26px}.hero-content{padding:24px}.countdown{grid-template-columns:repeat(2,1fr)}.section{padding-top:58px}.section-head{display:block}.section-head p{margin-top:10px}.quick-grid{grid-template-columns:1fr 1fr}.photo-grid{display:grid;grid-template-columns:1fr;grid-template-rows:330px 230px 230px 230px 230px}.photo-card:first-child{grid-column:auto}.day summary{grid-template-columns:auto 1fr auto}.day-date{display:none}.day-body{padding-left:16px;padding-right:16px}#map{height:440px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="glass">
+  <div class="brand"><span class="brand-dot"></span>España en familia</div>
+  <div class="navlinks">
+    <a href="#historia">El viaje</a><a href="#lugares">Lugares</a><a href="#ruta">Ruta</a><a href="#horarios">Horarios</a><a href="#itinerario">Itinerario</a><a href="#grupo">Grupo</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-frame">
+      <div class="hero-content">
+        <div class="kicker">✦ Octubre 2026 · España</div>
+        <h1>Nos vamos pa’ España.</h1>
+        <p class="hero-copy">10 días, 9 personas y un viaje que llevamos tiempo esperando. Madrid, Andalucía y un montón de paradas en el camino. Aquí está todo para que nadie tenga que preguntar 20 veces qué hacemos mañana 😂.</p>
+        <div class="hero-meta">
+          <span class="pill">19–28 octubre</span><span class="pill">9 personas</span><span class="pill">Madrid · Andalucía · Madrid</span>
+        </div>
+        <div class="countdown" aria-label="Cuenta regresiva">
+          <div class="count-unit"><div class="count-num" id="d">--</div><div class="count-label">Días</div></div>
+          <div class="count-unit"><div class="count-num" id="h">--</div><div class="count-label">Horas</div></div>
+          <div class="count-unit"><div class="count-num" id="m">--</div><div class="count-label">Minutos</div></div>
+          <div class="count-unit"><div class="count-num" id="s">--</div><div class="count-label">Segundos</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="section" id="historia">
+  <div class="container">
+    <div class="section-head"><h2>Todo el viaje, aquí.</h2><p>La idea es sencilla: tener la ruta, los horarios y lo importante en un solo lugar. Cuando estemos allá, abrimos esto y ya.</p></div>
+    <div class="intro-grid">
+      <article class="intro-card glass">
+        <div class="kicker">Nuestro viaje</div>
+        <h3 style="margin-top:18px">10 días recorriendo España en familia.</h3>
+        <p>Tenemos bastante planificado, pero tampoco vamos a convertir esto en una excursión escolar 😂. Hay días de tour, días para caminar y comer, y otros para simplemente ver qué nos da la gana hacer.</p>
+        <div class="big-number">10</div>
+      </article>
+      <div class="quick-grid">
+        <div class="quick glass"><span class="label">Fechas</span><span class="value">19–28 oct.</span></div>
+        <div class="quick glass"><span class="label">Somos</span><span class="value">9 viajeros</span></div>
+        <div class="quick glass"><span class="label">Noches</span><span class="value">9 noches</span></div>
+        <div class="quick glass"><span class="label">El plan</span><span class="value">Familia + España 🇪🇸</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="lugares">
+  <div class="container">
+    <div class="section-head"><h2>Por aquí vamos a estar.</h2><p>Madrid, Andalucía, pueblos, ciudades, historia, comida y par de sitios que seguro terminan siendo favoritos.</p></div>
+    <div class="photo-grid">
+      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg" alt="La Alhambra en Granada"><div class="photo-overlay"><strong>Granada</strong><span>Alhambra · Albaicín · flamenco</span></div></article>
+      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg" alt="Plaza de España en Sevilla"><div class="photo-overlay"><strong>Sevilla</strong><span>Catedral · Alcázar · Plaza de España</span></div></article>
+      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Puente_Nuevo_Ronda.jpg/1280px-Puente_Nuevo_Ronda.jpg" alt="Puente Nuevo de Ronda"><div class="photo-overlay"><strong>Ronda</strong><span>Puente Nuevo · vistas · pueblo</span></div></article>
+      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg" alt="Vista panorámica de Málaga"><div class="photo-overlay"><strong>Málaga</strong><span>Centro histórico · costa · día libre</span></div></article>
+      <article class="photo-card"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg" alt="Gran Vía de Madrid"><div class="photo-overlay"><strong>Madrid</strong><span>La primera y última parada</span></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="ruta">
+  <div class="container">
+    <div class="section-head"><h2>La ruta.</h2><p>Para que se vea rápido por dónde vamos: Madrid, bajamos por Andalucía y terminamos otra vez en Madrid.</p></div>
+    <div class="map-shell glass">
+      <div id="map" role="region" aria-label="Mapa interactivo de la ruta del viaje"></div>
+      <div class="map-note">
+        <div class="route-chips"><span>Madrid</span><span>Granada</span><span>Córdoba</span><span>Sevilla</span><span>Ronda</span><span>Setenil</span><span>Málaga</span><span>Madrid</span></div>
+        <span>Ruta visual aproximada · el recorrido real por carretera puede variar.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="horarios">
+  <div class="section-head"><h2>Horarios por ciudad.</h2><p>Para saber rápido cuándo llegamos y cuándo nos vamos de cada parada.</p></div>
+  <div class="city-times-grid">
+    <article class="city-time-card"><h3>Madrid <span class="stay">Primera parada</span></h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">19 oct · 10:25 a. m.<small>Llegada a Barajas T4S</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">20 oct · 9:30 a. m.<small>Recogida en el hotel rumbo a Granada</small></div></div></article>
+    <article class="city-time-card"><h3>Granada</h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">20 oct · sin hora confirmada<small>Llegada y check-in después del traslado desde Madrid</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">22 oct · 9:30 a. m.<small>Rumbo a Córdoba</small></div></div></article>
+    <article class="city-time-card"><h3>Córdoba</h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">22 oct · aprox. 12:00 p. m.<small>Parada para visita guiada y almuerzo</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">22 oct · 5:00 p. m.<small>Rumbo a Sevilla</small></div></div></article>
+    <article class="city-time-card"><h3>Sevilla</h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">22 oct · sin hora confirmada<small>Llegamos después de salir de Córdoba a las 5:00 p. m.</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">24 oct · 9:30 a. m.<small>Rumbo a Ronda</small></div></div></article>
+    <article class="city-time-card"><h3>Ronda</h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">24 oct · aprox. 12:00 p. m.<small>Visita guiada + almuerzo</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">24 oct · sin hora confirmada<small>Después de la visita y el almuerzo</small></div></div></article>
+    <article class="city-time-card"><h3>Setenil de las Bodegas</h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">24 oct · sin hora confirmada<small>Llegamos después de Ronda</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">24 oct · sin hora confirmada<small>Seguimos hacia Málaga ese mismo día</small></div></div></article>
+    <article class="city-time-card"><h3>Málaga</h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">24 oct · sin hora confirmada<small>Llegada al final de la ruta del día</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">27 oct · 8:45 a. m.<small>Recogida pendiente de confirmar · tren sale 10:40 a. m.</small></div></div></article>
+    <article class="city-time-card"><h3>Madrid <span class="stay">Última parada</span></h3><div class="city-time-row"><div class="city-time-label">Entrada</div><div class="city-time-value">27 oct · 1:49 p. m.<small>Llegada del tren a Puerta de Atocha</small></div></div><div class="city-time-row"><div class="city-time-label">Salida</div><div class="city-time-value">28 oct · vuelo 4:15 p. m.<small>Traslado al aeropuerto todavía por confirmar</small></div></div></article>
+  </div>
+</section>
+
+<section class="section" id="itinerario">
+  <div class="container">
+    <div class="section-head"><h2>Qué hacemos cada día.</h2><p>Toca el día y sale el plan. Dejé solamente lo que de verdad necesitamos saber.</p></div>
+    <div class="timeline">
+      <details class="day glass" open><summary><span class="day-tag">Día 1</span><span class="day-title">Llegamos a Madrid</span><span class="day-date">19 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg" alt="Madrid"></div><div class="day-copy"><div class="day-times"><span class="time-pill"><b>Entrada Madrid</b> 10:25 a. m.</span></div><p>Llegamos a Madrid por la mañana y de ahí directo al Hotel H10 Puerta de Alcalá. Después de eso: acomodarnos, comer algo y arrancar el viaje tranquilo.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 2</span><span class="day-title">Madrid → Granada</span><span class="day-date">20 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg" alt="Granada"></div><div class="day-copy"><div class="day-times"><span class="time-pill"><b>Salida Madrid</b> 9:30 a. m.</span><span class="time-pill"><b>Entrada Granada</b> sin hora confirmada</span></div><p>Salida del hotel a las 9:30 a. m. rumbo a Granada. Check-in en Eurostars Puerta Real.</p><p>Por la tarde, recorrido privado por el Albaicín con recogida en el hotel a las 6:00 p. m.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 3</span><span class="day-title">Granada · Alhambra + flamenco</span><span class="day-date">21 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Alhambra-granada.jpg" alt="La Alhambra"></div><div class="day-copy"><p>Visita privada a la Alhambra por la mañana. Recogida en el hotel a las 8:20 a. m.; la entrada es a las 9:00 a. m.</p><div class="note">Importante: llevar el pasaporte original utilizado para las entradas.</div><p>Por la tarde, cena en Las Tomasas y espectáculo de flamenco en Cueva La Rocío.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 4</span><span class="day-title">Granada → Córdoba → Sevilla</span><span class="day-date">22 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg" alt="Sevilla"></div><div class="day-copy"><div class="day-times"><span class="time-pill"><b>Salida Granada</b> 9:30 a. m.</span><span class="time-pill"><b>Córdoba</b> 12:00 p. m. → 5:00 p. m.</span><span class="time-pill"><b>Entrada Sevilla</b> sin hora confirmada</span></div><p>Salida a las 9:30 a. m. con parada en Córdoba. Visita guiada que incluye la Mezquita-Catedral y luego tiempo libre para almorzar.</p><p>Por la tarde seguimos a Sevilla y hacemos check-in en NH Plaza de Armas.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 5</span><span class="day-title">Sevilla</span><span class="day-date">23 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg/1280px-Plaza_de_Espa%C3%B1a%2C_Sevilla%2C_2024.jpg" alt="Plaza de España de Sevilla"></div><div class="day-copy"><p>Encuentro con el guía junto a la Catedral a las 10:00 a. m. para visitar Catedral, Giralda y Real Alcázar.</p><p>La tarde está libre. Podemos caminar por el Parque de María Luisa, pasar por Plaza de España o decidir allá qué queremos hacer.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 6</span><span class="day-title">Sevilla → Ronda → Setenil → Málaga</span><span class="day-date">24 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Puente_Nuevo_Ronda.jpg/1280px-Puente_Nuevo_Ronda.jpg" alt="Ronda"></div><div class="day-copy"><div class="day-times"><span class="time-pill"><b>Salida Sevilla</b> 9:30 a. m.</span><span class="time-pill"><b>Entrada Ronda</b> aprox. 12:00 p. m.</span><span class="time-pill"><b>Setenil / Málaga</b> sin hora confirmada</span></div><p>Salida a las 9:30 a. m. hacia Málaga, con paradas en Ronda y Setenil de las Bodegas.</p><p>En Ronda tendremos visita guiada y tiempo para almorzar. Luego seguimos a Setenil y terminamos el día en Málaga, en el Hotel Meliá Alameda.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 7</span><span class="day-title">Málaga · centro histórico</span><span class="day-date">25 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg" alt="Málaga"></div><div class="day-copy"><p>Encuentro con el guía a las 9:30 a. m. en el hotel. Recorrido por el centro histórico con Gibralfaro, la Alcazaba y la Casa Natal de Picasso.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 8</span><span class="day-title">Málaga · día libre</span><span class="day-date">26 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/M%C3%A1laga_panoramic_view_%28A-7000%29.jpg/1280px-M%C3%A1laga_panoramic_view_%28A-7000%29.jpg" alt="Málaga"></div><div class="day-copy"><p>Día libre completo. Playa, comer, caminar, descansar o lo que nos dé la gana hacer ese día. Cero agenda obligatoria 😂.</p></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 9</span><span class="day-title">Málaga → Madrid</span><span class="day-date">27 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg" alt="Madrid"></div><div class="day-copy"><div class="day-times"><span class="time-pill"><b>Salida Málaga</b> 8:45 a. m. pendiente</span><span class="time-pill"><b>Tren</b> 10:40 a. m.</span><span class="time-pill"><b>Entrada Madrid</b> 1:49 p. m.</span></div><p>Traslado por la mañana a María Zambrano y tren hacia Madrid. Llegada a Atocha y traslado al Hotel H10 Villa de la Reina.</p><div class="note">La recogida del hotel en Málaga sigue pendiente de confirmación.</div></div></div></details>
+
+      <details class="day glass"><summary><span class="day-tag">Día 10</span><span class="day-title">Madrid · regreso a casa</span><span class="day-date">28 oct</span><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></summary><div class="day-body"><div class="day-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Gran_Via%2C_Madrid.jpg" alt="Madrid"></div><div class="day-copy"><div class="day-times"><span class="time-pill"><b>Salida Madrid</b> vuelo 4:15 p. m.</span></div><p>Desayuno, última mañana en Madrid y traslado al aeropuerto con tiempo suficiente para el vuelo de regreso.</p><p>Y ahí se acabó España 😭. De vuelta a casa con las fotos, los cuentos y probablemente mil cosas más en la maleta. ✈️</p></div></div></details>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="grupo">
+  <div class="container">
+    <div class="chat glass">
+      <h2>¿Vieron algo que quieren hacer?</h2>
+      <p>Si encuentran un restaurante, un lugar, una actividad o cualquier cosa que quieran añadir, tírenlo al chat. Así no se nos pierde entre 400 mensajes 😂.</p>
+      <a class="chat-btn" href="https://chat.whatsapp.com/J9H9kHxmW1dGZenFmJSY5D?mode=gi_t" target="_blank" rel="noopener">Abrir chat del viaje ↗</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container">España 2026 🇪🇸 · En familia, que es como mejor se viaja. ♡</div>
+  <div class="credits">Fotos de referencia: Nicolas Vigier / CC0; Trumpf / dominio público; CarlosVdeHabsburgo / CC BY-SA 4.0; Elaeudanla278 / CC BY-SA 3.0; Daniel Capilla / CC BY-SA 4.0 · vía Wikimedia Commons.</div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const inicio = new Date('2026-10-19T10:25:00');
+const fin = new Date('2026-10-28T23:59:59');
+const els = {d:document.getElementById('d'),h:document.getElementById('h'),m:document.getElementById('m'),s:document.getElementById('s')};
+function tick(){
+  const now = new Date();
+  if(now >= inicio && now <= fin){
+    const dia = Math.floor((now-inicio)/86400000)+1;
+    els.d.textContent=dia; els.h.textContent='✦'; els.m.textContent='✦'; els.s.textContent='✦'; return;
+  }
+  if(now > fin){ els.d.textContent='0';els.h.textContent='0';els.m.textContent='0';els.s.textContent='0'; return; }
+  const diff=inicio-now;
+  els.d.textContent=Math.floor(diff/86400000);
+  els.h.textContent=String(Math.floor(diff/3600000)%24).padStart(2,'0');
+  els.m.textContent=String(Math.floor(diff/60000)%60).padStart(2,'0');
+  els.s.textContent=String(Math.floor(diff/1000)%60).padStart(2,'0');
+}
+tick(); setInterval(tick,1000);
+
+const route = [
+  ['Madrid',40.4168,-3.7038],
+  ['Granada',37.1773,-3.5986],
+  ['Córdoba',37.8882,-4.7794],
+  ['Sevilla',37.3891,-5.9845],
+  ['Ronda',36.7462,-5.1612],
+  ['Setenil de las Bodegas',36.8631,-5.1817],
+  ['Málaga',36.7213,-4.4214],
+  ['Madrid',40.4168,-3.7038]
+];
+if(window.L){
+  const map=L.map('map',{scrollWheelZoom:false,zoomControl:true});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  const latlngs=route.map(r=>[r[1],r[2]]);
+  L.polyline(latlngs,{color:'#F3C552',weight:5,opacity:.95,lineCap:'round',dashArray:'1 0'}).addTo(map);
+  route.slice(0,-1).forEach((r,i)=>{
+    const icon=L.divIcon({className:'',html:'<div class="route-marker"></div>',iconSize:[16,16],iconAnchor:[8,8]});
+    L.marker([r[1],r[2]],{icon}).addTo(map).bindPopup('<strong>'+r[0]+'</strong><br><span style="opacity:.72">Parada '+(i+1)+'</span>');
+  });
+  map.fitBounds(L.latLngBounds(latlngs).pad(.16));
+}else{
+  document.getElementById('map').innerHTML='<div style="padding:32px;color:#5E101B">El mapa se carga al tener conexión a internet.</div>';
+}
+</script>
+</body>
+</html>
